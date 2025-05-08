@@ -1,11 +1,11 @@
 # BoxScores_mlb
 A command line interface application for basic real time display of MLB boxscores
 
-**Installation Instructions:**
-	- Currently Depends on node.js 
-	- cd into the git directory 
-	- npm install -g . 
-	- then call mlbbox from anywhere and you will get it!
+**Installation Instructions:** 
+- Currently Depends on node.js 
+- cd into the git directory 
+- npm install -g . 
+- then call mlbbox from anywhere and you will get it!
 	
 **Currently Working:**
 
