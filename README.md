@@ -9,7 +9,7 @@ Installation Instructions:
 	
 Currently Working:
 
-Running socreboard.js Outputs a nice cli with:
+-Running socreboard.js Outputs a nice cli with:
  - the current scores bugs 
  - batter/pitcher matcups
  - Pitchers That Won/lost/save for games that are final 
