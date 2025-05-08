@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import figlet from "figlet";
 import fs from "fs";
 import path from "path";
@@ -34,8 +35,9 @@ function renderGameGrid(games, gamesPerRow = 2, columnWidth = 30) {
     const home = game.teams.home.team.abbreviation;
     const away = game.teams.away.team.abbreviation;
     const status = game.status.detailedState;
-    const inning = game.linescore?.inningHalf + ' ' + game.linescore?.currentInning;
-    const h = game.linescore?.teams?.home;
+    const inningHalf = game.linescore?.inningHalf;
+		const inningNum = game.linescore?.currentInning;
+		const inning = (inningHalf && inningNum) ? `${inningHalf} ${inningNum}` : '-';    const h = game.linescore?.teams?.home;
     const a = game.linescore?.teams?.away;
     const isLive = status.includes("In Progress");
 
@@ -108,7 +110,8 @@ function renderGameGrid(games, gamesPerRow = 2, columnWidth = 30) {
 /**
  * Fetches MLB game schedule for a specific date and renders a styled CLI box score grid.
  */
-const url = "https://statsapi.mlb.com/api/v1/schedule?sportId=1&sportId=21&sportId=51&startDate=2025-05-07&endDate=2025-05-07&timeZone=America/New_York&gameType=E&gameType=S&gameType=R&gameType=F&gameType=D&gameType=L&gameType=W&gameType=A&gameType=C&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&language=en&leagueId=&leagueId=&leagueId=103&leagueId=104&leagueId=590&leagueId=160&leagueId=159&leagueId=420&leagueId=428&leagueId=431&leagueId=426&leagueId=427&leagueId=429&leagueId=430&leagueId=432&hydrate=team,linescore(matchup,runners),xrefId,story,flags,statusFlags,broadcasts(all),venue(location),decisions,person,probablePitcher,stats,game(content(media(epg),summary),tickets),seriesStatus(useOverride=true)&sortBy=gameDate,gameStatus,gameType";
+const today = new Date().toISOString().split("T")[0];
+const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&sportId=21&sportId=51&startDate=${today}&endDate=${today}&timeZone=America/New_York&gameType=E&gameType=S&gameType=R&gameType=F&gameType=D&gameType=L&gameType=W&gameType=A&gameType=C&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&language=en&leagueId=&leagueId=&leagueId=103&leagueId=104&leagueId=590&leagueId=160&leagueId=159&leagueId=420&leagueId=428&leagueId=431&leagueId=426&leagueId=427&leagueId=429&leagueId=430&leagueId=432&hydrate=team,linescore(matchup,runners),xrefId,story,flags,statusFlags,broadcasts(all),venue(location),decisions,person,probablePitcher,stats,game(content(media(epg),summary),tickets),seriesStatus(useOverride=true)&sortBy=gameDate,gameStatus,gameType`;
 const response = await axios.get(url);
 const data = response.data;
 

@@ -8,6 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "docs": "jsdoc scoreboard.js -d docs"
   },
+  "bin" :{"mlbbox": "scoreboard.js"},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/d05hna/BoxScores_mlb.git"
