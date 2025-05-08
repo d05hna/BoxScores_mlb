@@ -3,9 +3,15 @@ A command line interface application for basic real time display of MLB boxscore
 
 Currently Working:
 
-Running socreboard.js Outputs a nice cli with the current scores bugs and batter/pitcher matcups
+Running socreboard.js Outputs a nice cli with:
+ - the current scores bugs 
+ - batter/pitcher matcups
+ - Pitchers That Won/lost/save for games that are final 
+
 
 To Add:
 Continual Updates without re running command
 user preferences (Favorite team, divison order, league order etc) 
 balls and strikes
+records next to team names 
+

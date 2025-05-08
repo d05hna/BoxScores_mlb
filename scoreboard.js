@@ -38,8 +38,11 @@ function renderGameGrid(games, gamesPerRow = 2, columnWidth = 30) {
     const h = game.linescore?.teams?.home;
     const a = game.linescore?.teams?.away;
     const isLive = status.includes("In Progress");
-	const pitcher = game.linescore?.defense?.pitcher?.fullName;
-	const batter = game.linescore?.offense?.batter?.fullName;
+
+		const pitcher = game.linescore?.defense?.pitcher?.fullName;
+		const batter = game.linescore?.offense?.batter?.fullName;
+		const winner = game.decisions?.winner?.fullName
+		const loser = game.decisions?.loser?.fullName
 
     const statusColor = status.includes("Final")
       ? chalk.red 
@@ -52,13 +55,13 @@ function renderGameGrid(games, gamesPerRow = 2, columnWidth = 30) {
 	  padtoWidth(`Status: ${statusColor(status)}`, columnWidth),
 	  padtoWidth(`Inning: ${inning}`, columnWidth),
 	  padtoWidth(
-	    chalk.gray(
+	    chalk.bgWhite.black(
 	      `${padtoWidth(away, 6)} ${padtoWidth(`R:${a?.runs ?? '-'}`, 5)} ${padtoWidth(`H:${a?.hits ?? '-'}`, 5)} ${padtoWidth(`E:${a?.errors ?? '-'}`, 5)}`
 	    ),
 	    columnWidth
 	  ),
 	  padtoWidth(
-	    chalk.gray(
+	    chalk.bgWhite.black(
 	      `${padtoWidth(home, 6)} ${padtoWidth(`R:${h?.runs ?? '-'}`, 5)} ${padtoWidth(`H:${h?.hits ?? '-'}`, 5)} ${padtoWidth(`E:${h?.errors ?? '-'}`, 5)}`
 	    ),
 	    columnWidth
@@ -66,7 +69,11 @@ function renderGameGrid(games, gamesPerRow = 2, columnWidth = 30) {
 	  ...(isLive ? [
 	    padtoWidth(chalk.cyan(`P: ${pitcher ?? "?"}`), columnWidth),
 	    padtoWidth(chalk.magenta(`B: ${batter ?? "?"}`), columnWidth)
-	  ] : [])
+	  ] : status.includes("Final") ? [
+  padtoWidth(chalk.cyan(`W: ${winner ?? "?"}`), columnWidth),
+  padtoWidth(chalk.magenta(`L: ${loser ?? "?"}`),columnWidth), 
+  padtoWidth(chalk.yellow(`S: ${game.decisions?.save?.fullName ?? "-"}`), columnWidth)
+		] : [])
 	];
 
 	const borderTop = chalk.white('+' + '-'.repeat(columnWidth) + '+');
