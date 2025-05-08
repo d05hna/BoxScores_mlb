@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: scoreboard.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: scoreboard.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import figlet from "figlet";
+import fs from "fs";
+import path from "path";
+import chalk from "chalk";
+import axios from "axios";
+import stringWidth from "string-width";
+
+/**
+ * Pads a string to a target width, accounting for ANSI color codes using string-width.
+ * @param {string} str - The string to pad.
+ * @param {number} targetWidth - The target visual width of the string.
+ * @returns {string} - The padded string.
+ */
+function padtoWidth(str, targetWidth) {
+	const padding = Math.max(0, targetWidth - stringWidth(str));
+	return str + ' '.repeat(padding);
+}
+
+/**
+ * Renders a list of games in a terminal-friendly grid layout, each inside a box.
+ * Includes team abbreviations, score details, game status, inning, and if live, the pitcher and batter.
+ *
+ * @param {Array&lt;Object>} games - Array of game objects from the MLB Stats API.
+ * @param {number} [gamesPerRow=2] - Number of games to display per row.
+ * @param {number} [columnWidth=30] - Width of each game box in characters.
+ */
+function renderGameGrid(games, gamesPerRow = 2, columnWidth = 30) {
+  /**
+   * Formats a single game into a box with padding and colored info.
+   * @param {Object} game - A single MLB game object.
+   * @returns {Array&lt;string>} - An array of strings representing each line of the formatted box.
+   */
+  const formatGameBox = (game) => {
+    const home = game.teams.home.team.abbreviation;
+    const away = game.teams.away.team.abbreviation;
+    const status = game.status.detailedState;
+    const inning = game.linescore?.inningHalf + ' ' + game.linescore?.currentInning;
+    const h = game.linescore?.teams?.home;
+    const a = game.linescore?.teams?.away;
+    const isLive = status.includes("In Progress");
+	const pitcher = game.linescore?.defense?.pitcher?.fullName;
+	const batter = game.linescore?.offense?.batter?.fullName;
+
+    const statusColor = status.includes("Final")
+      ? chalk.red 
+      : status.includes("In Progress")
+        ? chalk.green
+        : chalk.yellow;
+
+	const contentLines = [
+	  padtoWidth(chalk.bold.white(`${away} @ ${home}`), columnWidth),
+	  padtoWidth(`Status: ${statusColor(status)}`, columnWidth),
+	  padtoWidth(`Inning: ${inning}`, columnWidth),
+	  padtoWidth(
+	    chalk.gray(
+	      `${padtoWidth(away, 6)} ${padtoWidth(`R:${a?.runs ?? '-'}`, 5)} ${padtoWidth(`H:${a?.hits ?? '-'}`, 5)} ${padtoWidth(`E:${a?.errors ?? '-'}`, 5)}`
+	    ),
+	    columnWidth
+	  ),
+	  padtoWidth(
+	    chalk.gray(
+	      `${padtoWidth(home, 6)} ${padtoWidth(`R:${h?.runs ?? '-'}`, 5)} ${padtoWidth(`H:${h?.hits ?? '-'}`, 5)} ${padtoWidth(`E:${h?.errors ?? '-'}`, 5)}`
+	    ),
+	    columnWidth
+	  ),
+	  ...(isLive ? [
+	    padtoWidth(chalk.cyan(`P: ${pitcher ?? "?"}`), columnWidth),
+	    padtoWidth(chalk.magenta(`B: ${batter ?? "?"}`), columnWidth)
+	  ] : [])
+	];
+
+	const borderTop = chalk.white('+' + '-'.repeat(columnWidth) + '+');
+	const borderBottom = borderTop;
+	const boxed = [borderTop, ...contentLines.map(line => chalk.white('|') + line + chalk.white('|')), borderBottom];
+
+	return boxed;
+  };
+
+  for (let i = 0; i &lt; games.length; i += gamesPerRow) {
+    const chunk = games.slice(i, i + gamesPerRow);
+    const boxes = chunk.map(formatGameBox);
+
+    const maxHeight = Math.max(...boxes.map(box => box.length));
+    const paddedBoxes = boxes.map(box => {
+      const linesToAdd = maxHeight - box.length;
+      const emptyLine = ' '.repeat(columnWidth);
+      return [...box, ...Array(linesToAdd).fill(emptyLine)];
+    });
+
+    for (let line = 0; line &lt; maxHeight; line++) {
+      console.log(paddedBoxes.map(box => box[line]).join('  '));
+    }
+    console.log(); // spacing between rows
+  }
+}
+
+// ==========================
+// Runtime fetch + render
+// ==========================
+
+/**
+ * Fetches MLB game schedule for a specific date and renders a styled CLI box score grid.
+ */
+const url = "https://statsapi.mlb.com/api/v1/schedule?sportId=1&amp;sportId=21&amp;sportId=51&amp;startDate=2025-05-07&amp;endDate=2025-05-07&amp;timeZone=America/New_York&amp;gameType=E&amp;gameType=S&amp;gameType=R&amp;gameType=F&amp;gameType=D&amp;gameType=L&amp;gameType=W&amp;gameType=A&amp;gameType=C&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;language=en&amp;leagueId=&amp;leagueId=&amp;leagueId=103&amp;leagueId=104&amp;leagueId=590&amp;leagueId=160&amp;leagueId=159&amp;leagueId=420&amp;leagueId=428&amp;leagueId=431&amp;leagueId=426&amp;leagueId=427&amp;leagueId=429&amp;leagueId=430&amp;leagueId=432&amp;hydrate=team,linescore(matchup,runners),xrefId,story,flags,statusFlags,broadcasts(all),venue(location),decisions,person,probablePitcher,stats,game(content(media(epg),summary),tickets),seriesStatus(useOverride=true)&amp;sortBy=gameDate,gameStatus,gameType";
+const response = await axios.get(url);
+const data = response.data;
+
+const games = data.dates?.[0]?.games || [];
+
+if (games.length === 0) {
+	console.log("No Games found.");
+	process.exit();
+}
+
+console.log(chalk.green.bold(figlet.textSync("MLB Box Scores", { horizontalLayout: "full" })));
+
+renderGameGrid(games, 3);
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#padtoWidth">padtoWidth</a></li><li><a href="global.html#renderGameGrid">renderGameGrid</a></li><li><a href="global.html#url">url</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed May 07 2025 23:56:09 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
