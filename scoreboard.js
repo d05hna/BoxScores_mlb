@@ -7,8 +7,8 @@ import axios from "axios";
 import stringWidth from "string-width";
 
 const args = process.argv.slice(2);
-const FavTeam = args.includes(`--f`)
-  ? args[args.indexOf('--f') + 1]?.toUpperCase()
+const FavTeam = args.includes(`-f`)
+  ? args[args.indexOf('-f') + 1]?.toUpperCase()
   : null;
 
 /**

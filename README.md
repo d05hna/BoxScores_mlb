@@ -15,8 +15,8 @@ A command line interface application for basic real time display of MLB boxscore
  - Pitchers That Won/lost/save for games that are final 
  - Balls and Strikes 
  - Probably Pitcher Stats 
+ - -f flag with 3 letter team code (eg NYM) makes favorite team appear first
 
 
 **To Add:**
 - Continual Updates without re running command
-- user preferences (Favorite team, divison order, league order etc) 
