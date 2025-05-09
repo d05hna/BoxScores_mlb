@@ -98,7 +98,7 @@
 
         
             
-<h4 class="name" id="url"><span class="type-signature">(constant) </span>url<span class="type-signature"></span></h4>
+<h4 class="name" id="today"><span class="type-signature">(constant) </span>today<span class="type-signature"></span></h4>
 
 
 
@@ -142,7 +142,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreboard.js.html">scoreboard.js</a>, <a href="scoreboard.js.html#line111">line 111</a>
+        <a href="scoreboard.js.html">scoreboard.js</a>, <a href="scoreboard.js.html#line150">line 150</a>
     </li></ul></dd>
     
 
@@ -294,7 +294,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreboard.js.html">scoreboard.js</a>, <a href="scoreboard.js.html#line14">line 14</a>
+        <a href="scoreboard.js.html">scoreboard.js</a>, <a href="scoreboard.js.html#line15">line 15</a>
     </li></ul></dd>
     
 
@@ -324,6 +324,234 @@
         
 <div class="param-desc">
     - The padded string.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="renderCircles"><span class="type-signature"></span>renderCircles<span class="signature">(count, total, filled, empty)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Renders a series of colored or empty circles based on count.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>count</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Number of filled circles.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>total</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Total number of circles.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>filled</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Unicode character for filled.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>empty</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Unicode character for empty.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="scoreboard.js.html">scoreboard.js</a>, <a href="scoreboard.js.html#line28">line 28</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    - Rendered circle string.
 </div>
 
 
@@ -548,7 +776,7 @@ Includes team abbreviations, score details, game status, inning, and if live, th
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="scoreboard.js.html">scoreboard.js</a>, <a href="scoreboard.js.html#line27">line 27</a>
+        <a href="scoreboard.js.html">scoreboard.js</a>, <a href="scoreboard.js.html#line41">line 41</a>
     </li></ul></dd>
     
 
@@ -594,13 +822,13 @@ Includes team abbreviations, score details, game status, inning, and if live, th
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#padtoWidth">padtoWidth</a></li><li><a href="global.html#renderGameGrid">renderGameGrid</a></li><li><a href="global.html#url">url</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#padtoWidth">padtoWidth</a></li><li><a href="global.html#renderCircles">renderCircles</a></li><li><a href="global.html#renderGameGrid">renderGameGrid</a></li><li><a href="global.html#today">today</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu May 08 2025 09:13:50 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu May 08 2025 20:42:58 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

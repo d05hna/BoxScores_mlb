@@ -26,7 +26,8 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import figlet from "figlet";
+            <pre class="prettyprint source linenums"><code>#!/usr/bin/env node
+import figlet from "figlet";
 import fs from "fs";
 import path from "path";
 import chalk from "chalk";
@@ -43,6 +44,19 @@ function padtoWidth(str, targetWidth) {
 	const padding = Math.max(0, targetWidth - stringWidth(str));
 	return str + ' '.repeat(padding);
 }
+
+/**
+ * Renders a series of colored or empty circles based on count.
+ * @param {number} count - Number of filled circles.
+ * @param {number} total - Total number of circles.
+ * @param {string} filled - Unicode character for filled.
+ * @param {string} empty - Unicode character for empty.
+ * @returns {string} - Rendered circle string.
+ */
+function renderCircles(count, total, filled, empty) {
+  return filled.repeat(count) + empty.repeat(total - count);
+}
+
 
 /**
  * Renders a list of games in a terminal-friendly grid layout, each inside a box.
@@ -62,15 +76,31 @@ function renderGameGrid(games, gamesPerRow = 2, columnWidth = 30) {
     const home = game.teams.home.team.abbreviation;
     const away = game.teams.away.team.abbreviation;
     const status = game.status.detailedState;
-    const inning = game.linescore?.inningHalf + ' ' + game.linescore?.currentInning;
-    const h = game.linescore?.teams?.home;
+    const inningHalf = game.linescore?.inningHalf;
+		const inningNum = game.linescore?.currentInning;
+		const inning = (inningHalf &amp;&amp; inningNum) ? `${inningHalf} ${inningNum}` : '-';    const h = game.linescore?.teams?.home;
     const a = game.linescore?.teams?.away;
     const isLive = status.includes("In Progress");
+    const balls = game.linescore?.balls ?? 0;
+    const strikes = game.linescore?.strikes ?? 0;
+    const outs = game.linescore?.outs ?? 0;
 
-		const pitcher = game.linescore?.defense?.pitcher?.fullName;
-		const batter = game.linescore?.offense?.batter?.fullName;
+		const pitcher = game.linescore?.defense?.pitcher?.fullName?.split(" ").slice(-1)[0] ?? "?";
+		const batter = game.linescore?.defense?.batter?.fullName?.split(" ").slice(-1)[0] ?? "?";
 		const winner = game.decisions?.winner?.fullName
 		const loser = game.decisions?.loser?.fullName
+
+		const hasFirst = !!game.linescore?.offense?.first;
+		const hasSecond = !!game.linescore?.offense?.second;
+		const hasThird = !!game.linescore?.offense?.third;
+
+		const filled = "■"; // U+25A0 (black square)
+		const empty  = "□"; // U+25A1 (white square)
+
+
+		const thirdBase  = hasThird  ? filled : empty;
+		const secondBase = hasSecond ? filled : empty;
+		const firstBase  = hasFirst  ? filled : empty;
 
     const statusColor = status.includes("Final")
       ? chalk.red 
@@ -95,13 +125,22 @@ function renderGameGrid(games, gamesPerRow = 2, columnWidth = 30) {
 	    columnWidth
 	  ),
 	  ...(isLive ? [
-	    padtoWidth(chalk.cyan(`P: ${pitcher ?? "?"}`), columnWidth),
-	    padtoWidth(chalk.magenta(`B: ${batter ?? "?"}`), columnWidth)
-	  ] : status.includes("Final") ? [
+	    padtoWidth(chalk.cyan(`P: ${pitcher ?? "?"}`), columnWidth *2/3) + padtoWidth(`${renderCircles(balls, 4, "🟢", "⚪")}`, columnWidth/3),
+	    padtoWidth(chalk.magenta(`B: ${batter ?? "?"}`), columnWidth *2/3) + padtoWidth(`${renderCircles(strikes, 3, "🔴", "⚪")}`, columnWidth/3),
+	    padtoWidth(`          ${secondBase}`,columnWidth*2/3 ) + padtoWidth(`${renderCircles(outs,3,"🟡", "⚪")}`,columnWidth/3),
+	    padtoWidth(`        ${thirdBase}   ${firstBase}`,columnWidth) 
+		  ] : status.includes("Final") ? [
   padtoWidth(chalk.cyan(`W: ${winner ?? "?"}`), columnWidth),
   padtoWidth(chalk.magenta(`L: ${loser ?? "?"}`),columnWidth), 
-  padtoWidth(chalk.yellow(`S: ${game.decisions?.save?.fullName ?? "-"}`), columnWidth)
-		] : [])
+  padtoWidth(chalk.yellow(`S: ${game.decisions?.save?.fullName ?? "-"}`), columnWidth),
+  padtoWidth(" ",columnWidth)
+		] : status.includes("Scheduled") || status.includes("Pre-Game") ? [
+			padtoWidth(chalk.cyan(`H: ${game.teams.home.probablePitcher?.fullName ?? "-"}`),columnWidth),
+			padtoWidth(chalk.magenta(`A: ${game.teams.away.probablePitcher?.fullName ?? "-"}`),columnWidth),
+			padtoWidth(" ",columnWidth),
+			padtoWidth(" ",columnWidth)
+
+		] : 	[padtoWidth(" ",columnWidth),padtoWidth(" ",columnWidth),padtoWidth(" ",columnWidth),padtoWidth(" ",columnWidth)])
 	];
 
 	const borderTop = chalk.white('+' + '-'.repeat(columnWidth) + '+');
@@ -136,7 +175,8 @@ function renderGameGrid(games, gamesPerRow = 2, columnWidth = 30) {
 /**
  * Fetches MLB game schedule for a specific date and renders a styled CLI box score grid.
  */
-const url = "https://statsapi.mlb.com/api/v1/schedule?sportId=1&amp;sportId=21&amp;sportId=51&amp;startDate=2025-05-07&amp;endDate=2025-05-07&amp;timeZone=America/New_York&amp;gameType=E&amp;gameType=S&amp;gameType=R&amp;gameType=F&amp;gameType=D&amp;gameType=L&amp;gameType=W&amp;gameType=A&amp;gameType=C&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;language=en&amp;leagueId=&amp;leagueId=&amp;leagueId=103&amp;leagueId=104&amp;leagueId=590&amp;leagueId=160&amp;leagueId=159&amp;leagueId=420&amp;leagueId=428&amp;leagueId=431&amp;leagueId=426&amp;leagueId=427&amp;leagueId=429&amp;leagueId=430&amp;leagueId=432&amp;hydrate=team,linescore(matchup,runners),xrefId,story,flags,statusFlags,broadcasts(all),venue(location),decisions,person,probablePitcher,stats,game(content(media(epg),summary),tickets),seriesStatus(useOverride=true)&amp;sortBy=gameDate,gameStatus,gameType";
+const today = new Date().toLocaleDateString('en-CA');  
+const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&amp;sportId=21&amp;sportId=51&amp;startDate=${today}&amp;endDate=${today}&amp;timeZone=America/New_York&amp;gameType=E&amp;gameType=S&amp;gameType=R&amp;gameType=F&amp;gameType=D&amp;gameType=L&amp;gameType=W&amp;gameType=A&amp;gameType=C&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;=&amp;language=en&amp;leagueId=&amp;leagueId=&amp;leagueId=103&amp;leagueId=104&amp;leagueId=590&amp;leagueId=160&amp;leagueId=159&amp;leagueId=420&amp;leagueId=428&amp;leagueId=431&amp;leagueId=426&amp;leagueId=427&amp;leagueId=429&amp;leagueId=430&amp;leagueId=432&amp;hydrate=team,linescore(matchup,runners),xrefId,story,flags,statusFlags,broadcasts(all),venue(location),decisions,person,probablePitcher,stats,game(content(media(epg),summary),tickets),seriesStatus(useOverride=true)&amp;sortBy=gameDate,gameStatus,gameType`;
 const response = await axios.get(url);
 const data = response.data;
 
@@ -148,7 +188,7 @@ if (games.length === 0) {
 }
 
 console.log(chalk.green.bold(figlet.textSync("MLB Box Scores", { horizontalLayout: "full" })));
-
+console.log(chalk.bold.green(today))
 renderGameGrid(games, 3);
 </code></pre>
         </article>
@@ -160,13 +200,13 @@ renderGameGrid(games, 3);
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#padtoWidth">padtoWidth</a></li><li><a href="global.html#renderGameGrid">renderGameGrid</a></li><li><a href="global.html#url">url</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#padtoWidth">padtoWidth</a></li><li><a href="global.html#renderCircles">renderCircles</a></li><li><a href="global.html#renderGameGrid">renderGameGrid</a></li><li><a href="global.html#today">today</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu May 08 2025 09:13:50 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu May 08 2025 20:42:58 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
