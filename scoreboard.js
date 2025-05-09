@@ -6,6 +6,11 @@ import chalk from "chalk";
 import axios from "axios";
 import stringWidth from "string-width";
 
+const args = process.argv.slice(2);
+const FavTeam = args.includes(`--f`)
+  ? args[args.indexOf('--f') + 1]?.toUpperCase()
+  : null;
+
 /**
  * Pads a string to a target width, accounting for ANSI color codes using string-width.
  * @param {string} str - The string to pad.
@@ -171,4 +176,19 @@ if (games.length === 0) {
 
 console.log(chalk.green.bold(figlet.textSync("MLB Box Scores", { horizontalLayout: "full" })));
 console.log(chalk.bold.green(today))
+
+if (FavTeam) {
+  games.sort((a, b) => {
+    const aTeams = [a.teams.home.team.abbreviation, a.teams.away.team.abbreviation];
+    const bTeams = [b.teams.home.team.abbreviation, b.teams.away.team.abbreviation];
+
+    const aHas = aTeams.includes(FavTeam);
+    const bHas = bTeams.includes(FavTeam);
+
+    if (aHas && !bHas) return -1;
+    if (!aHas && bHas) return 1;
+    return 0;
+  });
+}
+
 renderGameGrid(games, 3);
