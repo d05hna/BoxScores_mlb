@@ -38,6 +38,16 @@ function renderCircles(count, total, filled, empty) {
  * @param {number} [gamesPerRow=2] - Number of games to display per row.
  * @param {number} [columnWidth=30] - Width of each game box in characters.
  */
+
+function formatProbablePitcher(pitcher) {
+  const name = pitcher?.fullName?.split(" ").slice(-1)[0] ?? "-";
+  const hand = pitcher?.pitchHand?.code ?? "?";
+  const stats = pitcher?.stats?.[3]?.stats?.summary;
+
+  return `${hand}HP ${stats}`;
+}
+
+
 function renderGameGrid(games, gamesPerRow = 2, columnWidth = 30) {
   /**
    * Formats a single game into a box with padding and colored info.
@@ -108,9 +118,9 @@ function renderGameGrid(games, gamesPerRow = 2, columnWidth = 30) {
   padtoWidth(" ",columnWidth)
 		] : status.includes("Scheduled") || status.includes("Pre-Game") ? [
 			padtoWidth(chalk.cyan(`H: ${game.teams.home.probablePitcher?.fullName ?? "-"}`),columnWidth),
+			padtoWidth(chalk.cyan(`${formatProbablePitcher(game.teams.home.probablePitcher)}`), columnWidth),
 			padtoWidth(chalk.magenta(`A: ${game.teams.away.probablePitcher?.fullName ?? "-"}`),columnWidth),
-			padtoWidth(" ",columnWidth),
-			padtoWidth(" ",columnWidth)
+			padtoWidth(chalk.magenta(`${formatProbablePitcher(game.teams.away.probablePitcher)}`), columnWidth)
 
 		] : 	[padtoWidth(" ",columnWidth),padtoWidth(" ",columnWidth),padtoWidth(" ",columnWidth),padtoWidth(" ",columnWidth)])
 	];
