@@ -13,11 +13,10 @@ A command line interface application for basic real time display of MLB boxscore
  - the current scores bugs 
  - batter/pitcher matcups
  - Pitchers That Won/lost/save for games that are final 
+ - Balls and Strikes 
 
 
 **To Add:**
 - Continual Updates without re running command
 - user preferences (Favorite team, divison order, league order etc) 
-- balls and strikes
-- records next to team names 
-
+- Probable pitcher stats
